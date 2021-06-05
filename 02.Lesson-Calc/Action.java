@@ -5,7 +5,8 @@ import java.util.Scanner;
 public class Action {
 
 	double preResult = 0;
-	
+	String operation = "";	
+
 	boolean stop = false;
 	
 	boolean stopped() {
@@ -24,10 +25,21 @@ public class Action {
 				break;
 			case ("c"):
 				preResult = 0;
+				operation = "";
 				break;
 			case ("+"):
-				//preResult = p
+				operation = "+";
 				break;
+			case ("-"):
+				operation = "-";
+				break;
+			case ("*"):
+				operation = "*";
+				break;
+			case ("/"):
+				operation = "/";
+				break;
+
 			default:
 				System.out.println("Некорректное действие");
 				break;
@@ -36,6 +48,27 @@ public class Action {
 	}
 
 	void execute(Operand op) {
-		System.out.println("Action!");
+		switch (operation) {
+			case ("+"):
+				preResult = preResult + op.value;
+				break;
+			case ("-"):
+				preResult = preResult - op.value;
+				break;
+			case ("*"):
+				preResult = preResult * op.value;
+				break;
+			case ("/"):
+				preResult = preResult / op.value;
+				break;
+			default:
+				break;
+		}
+		operation = "";
+		if (operation == "=") {
+			System.out.println("Результат " + preResult);
+			preResult = 0;
+		}
 	}
 }
+ 
