@@ -11,7 +11,8 @@ public class ArrayDemo {
         System.out.println("Создан массив псевдослучайных чисел от 10 до 25000:");
         System.out.println(Arrays.toString(myArray));
 
-        //int[] myNewArray = {5, 3, 2, 0, -10, 100, 1};
+//        int[] myNewArray = {5, 3, 2, 0, -10, 100, 1};
+//        int[] myNewArray = {5, 3, 2, 0, -10};
         System.out.println("Сортировка массива: ");
         //System.out.println(Arrays.toString(myArray));
         System.out.print("Отсортированный массив (методом пузырька): ");
@@ -20,6 +21,9 @@ public class ArrayDemo {
         System.out.print("Отсортированный массив  (методом вставки): ");
         System.out.println(Arrays.toString(sortInsertion(myArray)));
 
+        System.out.print("Отсортированный массив  (методом слияния): ");
+        System.out.println(Arrays.toString(sortMerge(Arrays.copyOf(myArray, myArray.length))));
+//        System.out.println(Arrays.toString(sortMerge(myArray)));
 
     }
 
@@ -91,8 +95,46 @@ public class ArrayDemo {
      * Метод сортировки слиянием
      */
     static int[] sortMerge(int[] array) {
-        int[] result = Arrays.copyOf(array, array.length);
+        int[] A, B;
 
-        return result;
+        if (array.length <= 1) {
+            return array;
+        }
+
+        A = Arrays.copyOf( array, (array.length/2) );
+        B = Arrays.copyOfRange(array, (array.length/2), array.length);
+
+        A = sortMerge(A);
+        B = sortMerge(B);
+
+        int maxI = A.length + B.length;
+        int[] sortedAB = new int[maxI];
+        int indexA = 0, indexB = 0;
+        for (int i = 0; i < maxI; i++) {
+            if (indexA >= A.length) {
+                sortedAB[i] = B[indexB];
+                indexB++;
+            } else if (indexB >= B.length) {
+                sortedAB[i] = A[indexA];
+                indexA++;
+            } else if (A[indexA] < B[indexB]) {
+                sortedAB[i] = A[indexA];
+                indexA++;
+            } else {
+                sortedAB[i] = B[indexB];
+                indexB++;
+            }
+        }
+
+        return sortedAB;
+    }
+
+    /**
+     * Быстрая сортировка
+     */
+    static int[] sortQuick(int[] array) {
+
+        return array;
+
     }
 }
