@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="StringsDemo" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="StringsDemo" />
+    <module name="04.Lesson-Strings" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
