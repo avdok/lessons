@@ -12,22 +12,22 @@ public class ArrayDemo {
         System.out.println(Arrays.toString(myArray));
 
 //        int[] myNewArray = {5, 3, 2, 0, -10, 100, 1};
-        int[] myNewArray = {5, 3, 2, 0, -10};
+        int[] myNewArray = {8953, 2430, 6638, 4783, 16192, 3648, 630, 21936, 11397, 20761, 10695, 3358};
         System.out.println("Сортировка массива: ");
         //System.out.println(Arrays.toString(myArray));
-        System.out.print("Отсортированный массив (методом пузырька): ");
+        System.out.print("Отсортированный массив   (методом пузырька): ");
         System.out.println(Arrays.toString(sortBubble(myArray)));
 
-        System.out.print("Отсортированный массив  (методом вставки): ");
+        System.out.print("Отсортированный массив    (методом вставки): ");
         System.out.println(Arrays.toString(sortInsertion(myArray)));
 
-        System.out.print("Отсортированный массив  (методом слияния): ");
+        System.out.print("Отсортированный массив    (методом слияния): ");
         System.out.println(Arrays.toString(sortMerge(Arrays.copyOf(myArray, myArray.length))));
 //        System.out.println(Arrays.toString(sortMerge(myArray)));
 
         System.out.print("Отсортированный массив (быстрая сортировка): ");
-//        int[] arrayForQSort = Arrays.copyOf(myArray, myArray.length);
-        int[] arrayForQSort = Arrays.copyOf(myNewArray, myNewArray.length);
+        int[] arrayForQSort = Arrays.copyOf(myArray, myArray.length);
+//        int[] arrayForQSort = Arrays.copyOf(myNewArray, myNewArray.length);
 
         sortQuick(arrayForQSort, 0, arrayForQSort.length - 1);
         System.out.println(Arrays.toString(arrayForQSort));
@@ -141,30 +141,42 @@ public class ArrayDemo {
      * Быстрая сортировка
      */
     static void sortQuick(int[] array, int min, int max) {
-        if (min == max) {
+        if (min >= max) {
             return;
         }
 //        int[] result = Arrays.copyOf(array, array.length);
         int i = min;
         int j = max;
-        int m = (max - min) / 2;
+        int m = ( (max - min) / 2 ) + min;
+        int p = array[m];
         int temp;
 
-        while (i < j) {
+        while (i <= j) {
 
-            if (array[i] < array[m]) {
+            while (array[i] < p) {
                 i++;
-            } else if (array[j] >= array[m]) {
+            }
+            while (array[j] > p) {
                 j--;
-            } else {
+            }
+
+            if (i <= j) {
                 temp = array[i];
                 array[i] = array[j];
                 array[j] = temp;
+                i++;
+                j--;
             }
 
         }
-        sortQuick(array, min, m);
-        sortQuick(array, m, max);
-
+        if ( (max - min) <= 1) {
+            return;
+        }
+        if (j > 0 ) {
+            sortQuick(array, min, j);
+        }
+        if (i < array.length) {
+            sortQuick(array, i, max);
+        }
     }
 }
