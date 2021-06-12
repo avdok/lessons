@@ -1,5 +1,6 @@
 import java.util.Arrays;
 import java.util.Random;
+import java.text.DecimalFormat;
 
 public class ArrayDemo {
 
@@ -40,10 +41,53 @@ public class ArrayDemo {
             System.out.println("Элемент не найден");
         }
 
+        System.out.print("Отсортированный массив от большего к меньшему (быстрая сортировка): ");
+        int[] arrayForQSortReverse = Arrays.copyOf(myArray, myArray.length);
+        sortQuick(arrayForQSortReverse, 0, arrayForQSortReverse.length - 1, false);
+        System.out.println(Arrays.toString(arrayForQSortReverse));
+
+        benchmark(100000);
+//        benchmark(10000000);
+//        benchmark(100000000);
+
 
     }
 
+    /**
+     * Бенчмарк
+     */
+    static void benchmark(int size) {
+        long startTime, endTime;
+        DecimalFormat df = new DecimalFormat("###,###" );
 
+        System.out.println("===================================================================");
+        System.out.println("Бенчмарк сортировок для массива " + df.format(size) + " элементов:");
+        int[] myArray10m = genRandomArray(size);
+
+        System.out.print("Метод пузырька: ");
+        startTime = System.currentTimeMillis();
+        sortBubble(myArray10m);
+        endTime = System.currentTimeMillis();
+        System.out.println( df.format(endTime - startTime) + " мс" );
+
+        System.out.print("Метод вставки: ");
+        startTime = System.currentTimeMillis();
+        sortInsertion(myArray10m);
+        endTime = System.currentTimeMillis();
+        System.out.println( df.format(endTime - startTime) + " мс" );
+
+        System.out.print("Метод слияния: ");
+        startTime = System.currentTimeMillis();
+        sortMerge(myArray10m);
+        endTime = System.currentTimeMillis();
+        System.out.println( df.format(endTime - startTime) + " мс" );
+
+        System.out.print("Быстрая сортировка: ");
+        startTime = System.currentTimeMillis();
+        sortQuick(myArray10m, 0, myArray10m.length - 1);
+        endTime = System.currentTimeMillis();
+        System.out.println( df.format(endTime - startTime) + " мс" );
+    }
 
     /**
      * Метод создает массив случайных чисел от 10 до 25000
@@ -188,6 +232,58 @@ public class ArrayDemo {
     }
 
     /**
+     * Быстрая сортировка c направлением
+     */
+    static void sortQuick(int[] array, int min, int max, boolean asc) {
+        if (min >= max) {
+            return;
+        }
+        int i = min;
+        int j = max;
+        int m = ( (max - min) / 2 ) + min;
+        int p = array[m];
+        int temp;
+
+        while (i <= j) {
+            //если сортировка от меньшего к большему
+            if (asc) {
+                while (array[i] < p) {
+                    i++;
+                }
+                while (array[j] > p) {
+                    j--;
+                }
+            //если сортировка от большего к меньшему
+            } else {
+                while (array[i] > p) {
+                    i++;
+                }
+                while (array[j] < p) {
+                    j--;
+                }
+            }
+
+            if (i <= j) {
+                temp = array[i];
+                array[i] = array[j];
+                array[j] = temp;
+                i++;
+                j--;
+            }
+
+        }
+        if ( (max - min) <= 1) {
+            return;
+        }
+        if (j > 0) {
+            sortQuick(array, min, j, asc);
+        }
+        if (i < array.length) {
+            sortQuick(array, i, max, asc);
+        }
+    }
+
+    /**
      * Бинарный поиск
      */
     static int binaryFind(int[] array, int findObj, int min, int max) {
@@ -209,4 +305,8 @@ public class ArrayDemo {
         }
 
     }
+
+
+
+
 }
