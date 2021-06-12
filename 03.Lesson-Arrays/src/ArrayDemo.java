@@ -12,7 +12,7 @@ public class ArrayDemo {
         System.out.println(Arrays.toString(myArray));
 
 //        int[] myNewArray = {5, 3, 2, 0, -10, 100, 1};
-//        int[] myNewArray = {5, 3, 2, 0, -10};
+        int[] myNewArray = {5, 3, 2, 0, -10};
         System.out.println("Сортировка массива: ");
         //System.out.println(Arrays.toString(myArray));
         System.out.print("Отсортированный массив (методом пузырька): ");
@@ -25,6 +25,14 @@ public class ArrayDemo {
         System.out.println(Arrays.toString(sortMerge(Arrays.copyOf(myArray, myArray.length))));
 //        System.out.println(Arrays.toString(sortMerge(myArray)));
 
+        System.out.print("Отсортированный массив (быстрая сортировка): ");
+//        int[] arrayForQSort = Arrays.copyOf(myArray, myArray.length);
+        int[] arrayForQSort = Arrays.copyOf(myNewArray, myNewArray.length);
+
+        sortQuick(arrayForQSort, 0, arrayForQSort.length - 1);
+        System.out.println(Arrays.toString(arrayForQSort));
+
+
     }
 
 
@@ -32,7 +40,7 @@ public class ArrayDemo {
     /**
      * Метод создает массив случайных чисел от 10 до 25000
      * @param arraySize размер массива
-     * @return
+     * @return int[]
      */
     static private int[] genRandomArray(int arraySize) {
 
@@ -51,7 +59,7 @@ public class ArrayDemo {
     static private int[] sortBubble(int[] array) {
         int[] result = Arrays.copyOf(array, array.length);
         int finI = result.length - 1;
-        boolean modified = false;
+        boolean modified;
 
         for (int j = 0; j < result.length - 1; j++) {
             modified = false;
@@ -132,9 +140,31 @@ public class ArrayDemo {
     /**
      * Быстрая сортировка
      */
-    static int[] sortQuick(int[] array) {
+    static void sortQuick(int[] array, int min, int max) {
+        if (min == max) {
+            return;
+        }
+//        int[] result = Arrays.copyOf(array, array.length);
+        int i = min;
+        int j = max;
+        int m = (max - min) / 2;
+        int temp;
 
-        return array;
+        while (i < j) {
+
+            if (array[i] < array[m]) {
+                i++;
+            } else if (array[j] >= array[m]) {
+                j--;
+            } else {
+                temp = array[i];
+                array[i] = array[j];
+                array[j] = temp;
+            }
+
+        }
+        sortQuick(array, min, m);
+        sortQuick(array, m, max);
 
     }
 }
