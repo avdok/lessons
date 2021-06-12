@@ -11,8 +11,8 @@ public class ArrayDemo {
         System.out.println("Создан массив псевдослучайных чисел от 10 до 25000:");
         System.out.println(Arrays.toString(myArray));
 
-//        int[] myNewArray = {5, 3, 2, 0, -10, 100, 1};
-        int[] myNewArray = {8953, 2430, 6638, 4783, 16192, 3648, 630, 21936, 11397, 20761, 10695, 3358};
+        int[] myNewArray = {-10, -3, 0, 2, 5, 15, 100};
+//        int[] myNewArray = {8953, 2430, 6638, 4783, 16192, 3648, 630, 21936, 11397, 20761, 10695, 3358};
         System.out.println("Сортировка массива: ");
         //System.out.println(Arrays.toString(myArray));
         System.out.print("Отсортированный массив   (методом пузырька): ");
@@ -31,6 +31,14 @@ public class ArrayDemo {
 
         sortQuick(arrayForQSort, 0, arrayForQSort.length - 1);
         System.out.println(Arrays.toString(arrayForQSort));
+
+        System.out.print("Бинарный поиск в массив элемента " + arrayForQSort[13] + ": ");
+        int indexFound = binaryFind(arrayForQSort, arrayForQSort[13], 0, arrayForQSort.length-1);
+        if (indexFound >= 0) {
+            System.out.println(" индекс найденного элемента " + indexFound);
+        } else {
+            System.out.println("Элемент не найден");
+        }
 
 
     }
@@ -144,7 +152,6 @@ public class ArrayDemo {
         if (min >= max) {
             return;
         }
-//        int[] result = Arrays.copyOf(array, array.length);
         int i = min;
         int j = max;
         int m = ( (max - min) / 2 ) + min;
@@ -172,11 +179,34 @@ public class ArrayDemo {
         if ( (max - min) <= 1) {
             return;
         }
-        if (j > 0 ) {
+        if (j > 0) {
             sortQuick(array, min, j);
         }
         if (i < array.length) {
             sortQuick(array, i, max);
         }
+    }
+
+    /**
+     * Бинарный поиск
+     */
+    static int binaryFind(int[] array, int findObj, int min, int max) {
+        int result;
+        int indexp = ((max - min) / 2 ) + min;
+
+        if ( (min == max) & (findObj != array[min])) {
+            return -1;
+        }
+
+        if (findObj == array[indexp]) {
+            return indexp;
+        } else if (findObj > array[indexp]) {
+            return binaryFind(array, findObj, indexp + 1, max);
+        } else if (findObj < array[indexp]) {
+            return binaryFind(array, findObj, min, indexp -1);
+        } else {
+            return -1;
+        }
+
     }
 }
