@@ -1,0 +1,5 @@
+Hello друзья.
+This is text from fileA.
+And this is also text!
+Good bye...
+ 
