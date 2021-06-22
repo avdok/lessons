@@ -1,18 +1,32 @@
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.StreamCorruptedException;
 import java.util.*;
+import java.nio.file.*;
+import java.util.stream.Stream;
+
 
 public class IODemo {
 
     public static void main(String[] args) {
 //        File dir = new File("/home/alex/git/lessons/05.Lesson-IO2");
-        File dir = new File("/home/alex/Downloads");
+        String path;
+        if ( (args.length > 0) && (args[0].length() > 0) ) {
+            path = args[0];
+        } else {
+            path = "/home/alex/Downloads";
+        }
+        File dir = new File(path);
         HashMap<String, Long> fList = new HashMap<>();
+        ArrayList<String> report = new ArrayList<>();
 
         long size = getDir(dir, 0, fList);
 
-        System.out.println("Total size = " + (size / (1024 * 1024) ) + "Mb" );
-        System.out.println("======================");
-        System.out.println("Top 10 biggest files:");
+        report.add("IO methods:");
+        report.add("Total size = " + (size / (1024 * 1024) ) + "Mb" );
+        report.add("======================");
+        report.add("Top 10 biggest files:");
 
         ArrayList<Long> arrSizes = new ArrayList<>(fList.values());
         Collections.sort(arrSizes, Comparator.reverseOrder());
@@ -25,11 +39,92 @@ public class IODemo {
         }
 
         int i = 0;
-        for (Map.Entry entry : fList.entrySet()) {
+        for (HashMap.Entry entry : fList.entrySet()) {
             long curSize = ((Long) entry.getValue()).longValue();
 
             if (curSize >= limitSize) {
-                System.out.println(entry.getKey() + " = "
+                report.add(entry.getKey() + " = "
+                        + curSize  + " b");
+
+                i++;
+                if (i > 9) {
+                    break;
+                }
+
+            }
+        }
+
+        nioVariant(path, report);
+        writeToReport("report.txt", report);
+    }
+
+    static void writeToReport(String name, ArrayList<String> rept) {
+        //Write to output file
+        try(FileWriter fw = new FileWriter(name)) {
+            for (String keyArrList: rept
+            ) {
+                fw.write(keyArrList + "\n");
+            }
+
+        } catch (IOException exc) {
+            System.out.println("Ошибка ввода вывода " + exc);
+        }
+
+    }
+
+    static long getDir(File dir, int tab, HashMap<String, Long> fileList) {
+        String tabbed;
+        long result = 0;
+
+        if (dir.isDirectory()) {
+            File[] listOfFiles = dir.listFiles();
+            try {
+                for (File file : listOfFiles) {
+                    if (file.isDirectory()) {
+                        result = result + getDir(file, tab + 1, fileList);
+                    } else {
+                        result = result + file.length();
+                        fileList.put(file.toString(), file.length());
+                    }
+                }
+            } catch (NullPointerException ex) {
+                System.out.println("File reading error:" + ex.toString());
+            }
+        } else {
+            result = result + dir.length();
+            fileList.put(dir.toString(), dir.length());
+        }
+
+        return result;
+    }
+
+    static void nioVariant(String name, ArrayList<String> rept) {
+        HashMap<String, Long> fList = new HashMap<>();
+        long size = getDirFileNIO(Paths.get(name), fList);
+        rept.add("");
+        rept.add("");
+        rept.add("");
+        rept.add("NIO methods:");
+        rept.add("Total size = " + (size / (1024 * 1024) ) + "Mb" );
+        rept.add("======================");
+        rept.add("Top 10 biggest files:");
+
+        ArrayList<Long> arrSizes = new ArrayList<>(fList.values());
+        Collections.sort(arrSizes, Comparator.reverseOrder());
+
+        long limitSize = 0;
+        if (arrSizes.size() >= 9) {
+            limitSize = arrSizes.get(9);
+        } else if (arrSizes.size() != 0) {
+            limitSize = arrSizes.get(arrSizes.size() - 1);
+        }
+
+        int i = 0;
+        for (HashMap.Entry entry : fList.entrySet()) {
+            long curSize = ((Long) entry.getValue()).longValue();
+
+            if (curSize >= limitSize) {
+                rept.add(entry.getKey() + " = "
                         + curSize  + " b");
 
                 i++;
@@ -41,35 +136,33 @@ public class IODemo {
         }
     }
 
-    static long getDir(File dir, int tab, HashMap<String, Long> fileList) {
-        String tabbed;
+    static long getDirFileNIO(Path fdObj, HashMap<String, Long> fileList) {
         long result = 0;
 
-        char[] spaces = new char[tab * 4];
-        Arrays.fill(spaces, ' ');
-        tabbed = new String(spaces);
+        if (Files.isDirectory(fdObj)) {
+            try (DirectoryStream<Path> newDirStream = Files.newDirectoryStream(fdObj)) {
+                for (Path entry : newDirStream) {
+                    if (Files.isDirectory(entry)) {
+                        result = result + getDirFileNIO(entry, fileList);
+                    } else {
+                        result = result + Files.size(entry);
+                        fileList.put(entry.getFileName().toString(), Files.size(entry));
+                    }
 
-        if (dir.isDirectory()) {
-            File[] listFiles = dir.listFiles();
-            for (File file : listFiles) {
-                if (file.isDirectory()) {
-//                    System.out.println(tabbed + file.toString() + "  --it is directory");
-                    result = result + getDir(file, tab + 1, fileList);
-                } else {
-                    result = result + file.length();
-                    fileList.put(file.toString(), file.length());
-//                    System.out.print(tabbed + file.toString());
-//                    System.out.println("  --size " + file.length());
                 }
-            }
-            //System.out.println(Arrays.toString(listFiles));
-        } else {
-            result = result + dir.length();
-            fileList.put(dir.toString(), dir.length());
-//            System.out.print(tabbed + dir.toString());
-//            System.out.println("  --size " + dir.length());
-        }
 
+
+            } catch (IOException exc) {
+                System.out.println("IO file operation error:" + exc.toString());
+            }
+        } else {
+            try {
+                result = result + Files.size(fdObj);
+                fileList.put(fdObj.getFileName().toString(), Files.size(fdObj));
+            } catch (IOException exc) {
+                System.out.println("IO file operation error:" + exc.toString());
+            }
+        }
         return result;
     }
 }
