@@ -10,23 +10,43 @@ import java.util.stream.Stream;
 public class IODemo {
 
     public static void main(String[] args) {
-//        File dir = new File("/home/alex/git/lessons/05.Lesson-IO2");
         String path;
+        ArrayList<String> report = new ArrayList<>();
+
         if ( (args.length > 0) && (args[0].length() > 0) ) {
             path = args[0];
         } else {
             path = "/home/alex/Downloads";
         }
-        File dir = new File(path);
-        HashMap<String, Long> fList = new HashMap<>();
-        ArrayList<String> report = new ArrayList<>();
 
+        ioVariant(path, report);
+        nioVariant(path, report);
+        writeToReport("report.txt", report);
+    }
+
+    static void writeToReport(String name, ArrayList<String> rept) {
+        //Write to output file
+        try(FileWriter fw = new FileWriter(name)) {
+            for (String keyArrList: rept
+            ) {
+                fw.write(keyArrList + "\n");
+            }
+
+        } catch (IOException exc) {
+            System.out.println("Ошибка ввода вывода " + exc);
+        }
+
+    }
+
+    static void ioVariant(String name, ArrayList<String> rept) {
+        HashMap<String, Long> fList = new HashMap<>();
+        File dir = new File(name);
         long size = getDir(dir, 0, fList);
 
-        report.add("IO methods:");
-        report.add("Total size = " + (size / (1024 * 1024) ) + "Mb" );
-        report.add("======================");
-        report.add("Top 10 biggest files:");
+        rept.add("IO methods:");
+        rept.add("Total size = " + (size / (1024 * 1024) ) + "Mb" );
+        rept.add("======================");
+        rept.add("Top 10 biggest files:");
 
         ArrayList<Long> arrSizes = new ArrayList<>(fList.values());
         Collections.sort(arrSizes, Comparator.reverseOrder());
@@ -43,31 +63,13 @@ public class IODemo {
             long curSize = ((Long) entry.getValue()).longValue();
 
             if (curSize >= limitSize) {
-                report.add(entry.getKey() + " = "
+                rept.add(entry.getKey() + " = "
                         + curSize  + " b");
-
                 i++;
                 if (i > 9) {
                     break;
                 }
-
             }
-        }
-
-        nioVariant(path, report);
-        writeToReport("report.txt", report);
-    }
-
-    static void writeToReport(String name, ArrayList<String> rept) {
-        //Write to output file
-        try(FileWriter fw = new FileWriter(name)) {
-            for (String keyArrList: rept
-            ) {
-                fw.write(keyArrList + "\n");
-            }
-
-        } catch (IOException exc) {
-            System.out.println("Ошибка ввода вывода " + exc);
         }
 
     }
