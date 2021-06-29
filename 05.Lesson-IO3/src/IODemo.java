@@ -6,10 +6,10 @@ import java.util.Properties;
 
 public class IODemo {
 
-
     static public void main(String[] args) {
         String inputFile;
         String outputFile;
+
 
         //Read properties file
         Properties prop = new Properties();
