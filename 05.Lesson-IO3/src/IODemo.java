@@ -5,6 +5,7 @@ import java.io.*;
 import java.util.Properties;
 
 public class IODemo {
+
     static public void main(String[] args) {
         String inputFile;
         String outputFile;
