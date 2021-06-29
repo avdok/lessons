@@ -1,6 +1,5 @@
 //package com.avdok.lessons.iodemo3;
 
-
 import java.io.*;
 import java.util.Properties;
 
