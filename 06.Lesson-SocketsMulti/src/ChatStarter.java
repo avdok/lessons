@@ -1,10 +1,10 @@
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Properties;
-import java.util.Scanner;
 
-public class Chat {
+public class ChatStarter {
     static final String filePropertiesName;
 
     static {
@@ -29,20 +29,29 @@ public class Chat {
             return;
         } catch (IOException e) {
 //            e.printStackTrace();
-            System.out.println(e.toString());
+            System.out.println(e);
             return;
         }
 
 
         //Спросим что запустить - сервер или клиент
-        if (args.length > 0) {
+        if (args.length > 0 && args[0].equalsIgnoreCase("server")) {
             //Стартуем сервер
             System.out.println("Server starts.");
-           startServer(ipAddr, portNum, args[0]);
-        } else {
+            startServer(ipAddr, portNum, args[0]);
+        } else if (args.length > 0 && args[0].equalsIgnoreCase("client")) {
             //Стартуем клиента
             System.out.println("Client starts.");
-            startClient(ipAddr, portNum, "Petya");
+            if (args.length > 1) {
+                startClient(ipAddr, portNum, args[1]);
+            } else {
+                startClient(ipAddr, portNum, "Anonymous");
+            }
+        } else {
+            System.out.println("Usage:");
+            System.out.println("ChatStarter param name");
+            System.out.println("-param is server or client");
+            System.out.println("-name is name for client");
         }
 
     }
@@ -50,36 +59,50 @@ public class Chat {
     static void startServer(String ipAddr, String portNum, String helloWord) {
         int a = 0;
         String input, cmd, user;
+        boolean serverIsRun = true;
+        ArrayList<ServerThread> clientPull = new ArrayList<>();
 
         try {
-            ServerSocket server = new ServerSocket(40000);
-            Socket clientConn = server.accept();
-            BufferedReader serverInput = new BufferedReader(
-                                         new InputStreamReader(clientConn.getInputStream()));
-            while ( (input = serverInput.readLine()) != null )  {
-                if (input.equals("MSG")) {
-                    System.out.print(serverInput.readLine() + ": ");
-                    System.out.println(serverInput.readLine());
-                } else if (input.equals("CMD")) {
-
-                    user = serverInput.readLine();
-                    cmd = serverInput.readLine();
-
-                    System.out.print("Command from ");
-                    System.out.print(user + ": ");
-                    System.out.println(cmd);
-                    if (cmd.equalsIgnoreCase("/exit")) {
-                        break;
-                    }
-
-                }
-//                System.out.print(input);
+            ServerSocket server = new ServerSocket(Integer.parseInt(portNum));
+            while (serverIsRun) {
+                Socket clientConn = server.accept();
+                ServerThread st = new ServerThread(clientConn);
+                clientPull.add(st);
             }
-            clientConn.close();
-            server.close();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+//        try {
+//            ServerSocket server = new ServerSocket(40000);
+//            Socket clientConn = server.accept();
+//            BufferedReader serverInput = new BufferedReader(
+//                    new InputStreamReader(clientConn.getInputStream()));
+//            while ( (input = serverInput.readLine()) != null )  {
+//                if (input.equals("MSG")) {
+//                    System.out.print(serverInput.readLine() + ": ");
+//                    System.out.println(serverInput.readLine());
+//                } else if (input.equals("CMD")) {
+//
+//                    user = serverInput.readLine();
+//                    cmd = serverInput.readLine();
+//
+//                    System.out.print("Command from ");
+//                    System.out.print(user + ": ");
+//                    System.out.println(cmd);
+//                    if (cmd.equalsIgnoreCase("/exit")) {
+//                        break;
+//                    }
+//
+//                }
+////                System.out.print(input);
+//            }
+//            clientConn.close();
+//            server.close();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
     }
 
@@ -88,12 +111,19 @@ public class Chat {
         String userString;
 
         try {
-            Socket clientSocket = new Socket(ipAddr, 40000);
+            Socket clientSocket = new Socket(ipAddr, Integer.parseInt(portNum));
+
+            //Запустим поток для отображения информации с сервера
+            ClientThread ct = new ClientThread(clientSocket);
+
             PrintWriter outStr = new PrintWriter(clientSocket.getOutputStream(), true);
 
             BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
 
             System.out.println("Enter text: ");
+            outStr.println("CMD");
+            outStr.println(userName);
+            outStr.println("connected");
             while ( (userString = userInput.readLine()) != null) {
                 if (userString.charAt(0) == '/') {
                     outStr.println("CMD");
@@ -112,6 +142,4 @@ public class Chat {
             e.printStackTrace();
         }
     }
-
-
 }
